@@ -1,4 +1,4 @@
-Device A = Charger
+Device A = Charger,
 Device B = Battery
 
 Device-A contains RS-485 protocol and Device-B contains CAN protocol, in order to make them communicate without changing their matrix, an RS485<->CAN converter is being intoduced which will capture 
