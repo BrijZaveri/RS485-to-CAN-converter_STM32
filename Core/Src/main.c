@@ -35,12 +35,15 @@ static void MX_USART2_UART_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_USART1_UART_Init(void);
 
+//**************************Printf functionality********************
 int _write(int file, char *ptr, int len) {
     if (HAL_UART_Transmit(&huart2, (uint8_t *)ptr, len, HAL_MAX_DELAY) == HAL_OK) {
         return len;
     }
     return 0;
 }
+//**************************Printf functionality********************
+
 
 
 int main(void)
@@ -63,7 +66,7 @@ int main(void)
 	  transmitBMSCommand();
 
 	         if (dataReady && (HAL_GetTick() - lastDataTime < TIMEOUT)) {
-	             transmitDataOverUSART1();
+	             transmitDataOverUSART2();
 	             transmitDataOverCAN();
 	             memset(v_i_Str, 0, sizeof(v_i_Str)); // Clear buffer
 	             dataReady = 0; // Clear the flag
@@ -85,7 +88,7 @@ void transmitBMSCommand(void) {
 	HAL_Delay(500);
 }
 
-void transmitDataOverUSART1(void) {
+void transmitDataOverUSART2(void) {
 
 		int len;
 		uint16_t voltage = (uint16_t)bmsResponse[4] << 8 | bmsResponse[5];
@@ -106,57 +109,21 @@ void transmitDataOverUSART1(void) {
 
 }
 
-
-//void transmitDataOverCAN(void) {
-//    uint8_t TxData[8] = {0};  // CAN data payload of 8 bytes
-//    uint32_t msgId = 0x200;  // Starting message ID for data messages
-//
-//    // Prepare CAN header
-//    TxHeader.Identifier = msgId;
-//    TxHeader.IdType = FDCAN_STANDARD_ID;
-//    TxHeader.TxFrameType = FDCAN_DATA_FRAME;
-//    TxHeader.DataLength = FDCAN_DLC_BYTES_8;
-//    TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-//    TxHeader.BitRateSwitch = FDCAN_BRS_OFF;
-//    TxHeader.FDFormat = FDCAN_CLASSIC_CAN;
-//    TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-//    TxHeader.MessageMarker = 0;
-//
-//    // Voltage and Current data packing
-//    uint16_t voltage = (uint16_t)bmsResponse[4] << 8 | bmsResponse[5];
-//    uint16_t current = (uint16_t)bmsResponse[6] << 8 | bmsResponse[7];
-//    TxData[0] = (voltage >> 8) & 0xFF;
-//    TxData[1] = voltage & 0xFF;
-//    TxData[2] = (current >> 8) & 0xFF;
-//    TxData[3] = current & 0xFF;
-//
-//    // State of Charge data, assuming single-byte SoC
-//    uint8_t SoC = bmsResponse[23];  // Corrected to single-byte handling
-//    TxData[4] = SoC;
-//
-//    // Debugging outputs to check data integrity
-//    printf("Preparing to send CAN data: Voltage=%u, Current=%u, SOC=%u\n", voltage, current, SoC);
-//
-//    // Send CAN message
-//    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData) != HAL_OK) {
-//        printf("Failed to send data over CAN.\n");
-//    } else {
-//        printf("Data sent over CAN successfully.\n");
-//    }
-//}
-
 void transmitDataOverCAN(void) {
 
-	int totalCellVolt = (bmsResponse[25]*3.65)*100;
-	    uint16_t scaled_Volt_Value = totalCellVolt/10;
-	    uint8_t scaled_Volt_HighByte = (scaled_Volt_Value >> 8) & 0xFF;  // High byte
-	    uint8_t scaled_Volt_LowByte = scaled_Volt_Value & 0xFF;
-	    uint32_t msgId = 0x200;
+    int totalCellVolt = (bmsResponse[25] * 3.65) * 100;
+    uint16_t scaled_Volt_Value = totalCellVolt / 10;
+    uint8_t scaled_Volt_HighByte = (scaled_Volt_Value >> 8) & 0xFF;  // High byte
+    uint8_t scaled_Volt_LowByte = scaled_Volt_Value & 0xFF;
+    uint32_t msgId = 0x200;
 
     uint8_t broadcastAdd = 0xFF;
     uint8_t relayPowerON = 3;
+    uint8_t TxData[8];
+    uint8_t min_current = 0x10;  // Assuming min_current is defined somewhere
+    uint8_t max_current = 0x20;  // Assuming max_current is defined somewhere
 
-    //     Prepare CAN header
+    // Prepare CAN header
     TxHeader.Identifier = msgId;
     TxHeader.IdType = FDCAN_STANDARD_ID;
     TxHeader.TxFrameType = FDCAN_DATA_FRAME;
@@ -167,33 +134,29 @@ void transmitDataOverCAN(void) {
     TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
     TxHeader.MessageMarker = 0;
 
-    switch (bmsResponse[23]>90){
-    case 1:
-    	TxData[0] = broadcastAdd;
-    	TxData[1] = relayPowerON;
-    	TxData[2] = scaled_Volt_HighByte;		// voltage high byte
-    	TxData[3] = scaled_Volt_LowByte;		// voltage low byte
-    	TxData[4] = 0x00;
-    	TxData[5] = min_current;
-    	printf("executing Case_1 as SoC = %d\n", bmsResponse[23]);
+    // Check SoC (State of Charge) and set TxData accordingly
+    if (bmsResponse[23] > 90) { // when SoC is greater than 90%
+        TxData[0] = broadcastAdd;
+        TxData[1] = relayPowerON;
+        TxData[2] = scaled_Volt_HighByte; // voltage high byte
+        TxData[3] = scaled_Volt_LowByte;  // voltage low byte
+        TxData[4] = 0x00;
+        TxData[5] = min_current;
+        printf("Executing Case_1 as SoC = %d\n", bmsResponse[23]);
+    } else { // when SoC is less than or equal to 90%
+        TxData[0] = broadcastAdd;
+        TxData[1] = relayPowerON;
+        TxData[2] = scaled_Volt_HighByte; // voltage high byte
+        TxData[3] = scaled_Volt_LowByte;  // voltage low byte
+        TxData[4] = 0x00;
+        TxData[5] = max_current;
+        printf("Executing Case_2 as SoC = %d\n", bmsResponse[23]);
     }
 
-    switch (bmsResponse[23]<90){
-    case 1:
-    	TxData[0] = broadcastAdd;
-    	TxData[1] = relayPowerON;
-    	TxData[2] = scaled_Volt_HighByte;		// voltage high byte
-    	TxData[3] = scaled_Volt_LowByte;		// voltage low byte
-    	TxData[4] = 0x00;
-    	TxData[5] = max_current;
-    	printf("executing Case_2 as SoC = %d\n", bmsResponse[23]);
+    // Transmit CAN frame
+    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData) == HAL_OK) {
+        printf("Data sent over CAN successfully.\n");
     }
-       // Transmit CAN frame
-        if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData) == HAL_OK) {
-            // Handle possible error
-            // Error handling code here
-        	printf("Data sent over CAN successfully.\n");
-        }
 }
 
 /*void checkCANTransmission(void) {
