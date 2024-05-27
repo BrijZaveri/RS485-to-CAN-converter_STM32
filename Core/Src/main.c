@@ -29,6 +29,11 @@ int _write(int file, char *ptr, int len) {
     return 0;
 }
 //**************************Printf functionality********************
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/main
 
 int main(void)
 {
@@ -49,11 +54,19 @@ int main(void)
   {
 	  transmitBMSCommand();
 
+<<<<<<< HEAD
 		 if (dataReady && (HAL_GetTick() - lastDataTime < TIMEOUT)) {
 			 transmitDataOverUSART2();
 			 transmitDataOverCAN();
 			 memset(v_i_Str, 0, sizeof(v_i_Str)); // Clear buffer
 			 dataReady = 0; // Clear the flag
+=======
+	         if (dataReady && (HAL_GetTick() - lastDataTime < TIMEOUT)) {
+	             transmitDataOverUSART2();
+	             transmitDataOverCAN();
+	             memset(v_i_Str, 0, sizeof(v_i_Str)); // Clear buffer
+	             dataReady = 0; // Clear the flag
+>>>>>>> origin/main
 
 		 }
 		 else {
@@ -62,6 +75,110 @@ int main(void)
   }
 }
 
+<<<<<<< HEAD
+=======
+void transmitBMSCommand(void) {
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);			//LED indication HIgh
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);			//DE pin set High
+	HAL_UART_Transmit(&huart1, hostCommand, sizeof(hostCommand),10);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);		//LED indication LOW
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);		//DE pin set Low
+	HAL_Delay(500);
+}
+
+void transmitDataOverUSART2(void) {
+
+		int len;
+		uint16_t voltage = (uint16_t)bmsResponse[4] << 8 | bmsResponse[5];
+		len = snprintf(v_i_Str, sizeof(v_i_Str), "Voltage: %u", voltage);
+	    HAL_UART_Transmit(&huart2, (uint8_t*)v_i_Str, len, 1000); // Transmit voltage
+
+		uint16_t current = (uint16_t)bmsResponse[6] << 8 | bmsResponse[7];
+	    len = snprintf(v_i_Str, sizeof(v_i_Str), "Current: %u", current);
+	    HAL_UART_Transmit(&huart2, (uint8_t*)v_i_Str, len, 1000); // Transmit current
+
+		uint16_t SoC = (uint16_t)bmsResponse[23];
+		len = snprintf(v_i_Str, sizeof(v_i_Str), "SOC: %u\n", SoC);
+		HAL_UART_Transmit(&huart2, (uint8_t*)v_i_Str, len, 1000); // Transmit current
+
+		uint16_t TotalCells = (uint16_t)bmsResponse[25];
+		len = snprintf(v_i_Str, sizeof(v_i_Str), "No. of Cells: %u\n", TotalCells);
+		HAL_UART_Transmit(&huart2, (uint8_t*)v_i_Str, len, 1000); // Transmit current
+
+}
+
+void transmitDataOverCAN(void) {
+
+    int totalCellVolt = (bmsResponse[25] * 3.65) * 100;
+    uint16_t scaled_Volt_Value = totalCellVolt / 10;
+    uint8_t scaled_Volt_HighByte = (scaled_Volt_Value >> 8) & 0xFF;  // High byte
+    uint8_t scaled_Volt_LowByte = scaled_Volt_Value & 0xFF;
+    uint32_t msgId = 0x200;
+
+    uint8_t broadcastAdd = 0xFF;
+    uint8_t relayPowerON = 3;
+    uint8_t TxData[8];
+    uint8_t min_current = 0x10;  // Assuming min_current is defined somewhere
+    uint8_t max_current = 0x20;  // Assuming max_current is defined somewhere
+
+    // Prepare CAN header
+    TxHeader.Identifier = msgId;
+    TxHeader.IdType = FDCAN_STANDARD_ID;
+    TxHeader.TxFrameType = FDCAN_DATA_FRAME;
+    TxHeader.DataLength = FDCAN_DLC_BYTES_8;
+    TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+    TxHeader.BitRateSwitch = FDCAN_BRS_OFF;
+    TxHeader.FDFormat = FDCAN_CLASSIC_CAN;
+    TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+    TxHeader.MessageMarker = 0;
+
+    // Check SoC (State of Charge) and set TxData accordingly
+    if (bmsResponse[23] > 90) { // when SoC is greater than 90%
+        TxData[0] = broadcastAdd;
+        TxData[1] = relayPowerON;
+        TxData[2] = scaled_Volt_HighByte; // voltage high byte
+        TxData[3] = scaled_Volt_LowByte;  // voltage low byte
+        TxData[4] = 0x00;
+        TxData[5] = min_current;
+        printf("Executing Case_1 as SoC = %d\n", bmsResponse[23]);
+    } else { // when SoC is less than or equal to 90%
+        TxData[0] = broadcastAdd;
+        TxData[1] = relayPowerON;
+        TxData[2] = scaled_Volt_HighByte; // voltage high byte
+        TxData[3] = scaled_Volt_LowByte;  // voltage low byte
+        TxData[4] = 0x00;
+        TxData[5] = max_current;
+        printf("Executing Case_2 as SoC = %d\n", bmsResponse[23]);
+    }
+
+    // Transmit CAN frame
+    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData) == HAL_OK) {
+        printf("Data sent over CAN successfully.\n");
+    }
+}
+
+/*void checkCANTransmission(void) {
+    FDCAN_RxHeaderTypeDef RxHeader;
+    uint8_t RxData[8];
+
+    if (HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0, &RxHeader, RxData) == HAL_OK) {
+        // Compare received data with expected data
+        if (RxData[0] == bmsResponse[4] && RxData[1] == bmsResponse[5] &&
+            RxData[2] == bmsResponse[6] && RxData[3] == bmsResponse[7] &&
+            RxData[4] == bmsResponse[23] && RxData[5] == 0 && RxData[6] == 0 && RxData[7] == 0) {
+            // Data is correct
+            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET); // Set a success LED or similar indicator
+        	printf("Data sent over CAN successfully.\n");
+        } else {
+            // Data is incorrect
+        	printf("Data sent over CAN successfully.\n");
+
+        	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET); // Set a failure indicator
+        }
+    }
+}*/
+
+>>>>>>> origin/main
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (huart->Instance == USART1) {
