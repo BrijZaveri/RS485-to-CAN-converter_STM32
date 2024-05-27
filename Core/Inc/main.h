@@ -28,33 +28,29 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g0xx_hal.h"
+#include "config.h"
+#include "can_comm.h"
+#include "uart_comm.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+// Array sizes
+#define HOST_COMMAND_1_SIZE 7
+#define HOST_COMMAND_2_SIZE 7
 
-/* USER CODE END Includes */
+// Global variables
+extern uint8_t hostCommand_1[HOST_COMMAND_1_SIZE];
+extern uint8_t hostCommand_2[HOST_COMMAND_2_SIZE];
+extern uint8_t bmsResponse[65];
+extern char v_i_Str[50];
+extern volatile uint8_t dataReady;
+extern uint32_t lastDataTime;
+extern const uint32_t TIMEOUT;
+extern uint8_t TxData[8];
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
-
-/* USER CODE END ET */
-
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-
-/* USER CODE END EC */
-
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
-
-/* USER CODE END EM */
-
-/* Exported functions prototypes ---------------------------------------------*/
+// Function prototypes
+void SystemClock_Config(void);
+void CheckForTimeout(void);
 void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
 #define MCO_Pin GPIO_PIN_0

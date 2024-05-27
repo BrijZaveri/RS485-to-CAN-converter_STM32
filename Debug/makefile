@@ -60,8 +60,8 @@ all: main-build
 main-build: rs485_to_can.elf secondary-outputs
 
 # Tool invocations
-rs485_to_can.elf rs485_to_can.map: $(OBJS) $(USER_OBJS) D:\CODING\STM_cubeIDE\ projects\rs485_to_can_converter\STM32G0B1RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "rs485_to_can.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"D:\CODING\STM_cubeIDE projects\rs485_to_can_converter\STM32G0B1RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="rs485_to_can.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+rs485_to_can.elf rs485_to_can.map: $(OBJS) $(USER_OBJS) D:\CODING\OKAYA\rs485_to_can_converter\STM32G0B1RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "rs485_to_can.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"D:\CODING\OKAYA\rs485_to_can_converter\STM32G0B1RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="rs485_to_can.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

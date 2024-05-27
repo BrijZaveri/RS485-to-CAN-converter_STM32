@@ -1,5 +1,5 @@
-Core/Src/stm32g0xx_hal_msp.o: ../Core/Src/stm32g0xx_hal_msp.c \
- ../Core/Inc/main.h ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h \
+Core/Src/config.o: ../Core/Src/config.c ../Core/Inc/config.h \
+ ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h \
  ../Core/Inc/stm32g0xx_hal_conf.h \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_rcc.h \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h \
@@ -29,8 +29,9 @@ Core/Src/stm32g0xx_hal_msp.o: ../Core/Src/stm32g0xx_hal_msp.c \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_pwr_ex.h \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart_ex.h \
- ../Core/Inc/config.h ../Core/Inc/can_comm.h ../Core/Inc/uart_comm.h
-../Core/Inc/main.h:
+ ../Core/Inc/main.h ../Core/Inc/config.h ../Core/Inc/can_comm.h \
+ ../Core/Inc/uart_comm.h
+../Core/Inc/config.h:
 ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h:
 ../Core/Inc/stm32g0xx_hal_conf.h:
 ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_rcc.h:
@@ -61,6 +62,7 @@ Core/Src/stm32g0xx_hal_msp.o: ../Core/Src/stm32g0xx_hal_msp.c \
 ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_pwr_ex.h:
 ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h:
 ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart_ex.h:
+../Core/Inc/main.h:
 ../Core/Inc/config.h:
 ../Core/Inc/can_comm.h:
 ../Core/Inc/uart_comm.h:

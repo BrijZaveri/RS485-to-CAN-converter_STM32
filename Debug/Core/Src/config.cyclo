@@ -1,0 +1,6 @@
+../Core/Src/config.c:18:6:MX_GPIO_Init	1
+../Core/Src/config.c:44:6:MX_DMA_Init	1
+../Core/Src/config.c:63:6:MX_USART1_UART_Init	5
+../Core/Src/config.c:95:6:MX_USART2_UART_Init	5
+../Core/Src/config.c:128:6:MX_FDCAN1_Init	3
+../Core/Src/config.c:163:6:FDCAN1_FilterConfig	2
