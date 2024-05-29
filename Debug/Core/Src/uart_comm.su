@@ -1,2 +1,0 @@
-../Core/Src/uart_comm.c:11:6:transmitBMSCommand	8	static
-../Core/Src/uart_comm.c:22:6:transmitDataOverUSART2	24	static

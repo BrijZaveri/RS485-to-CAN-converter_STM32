@@ -5,10 +5,10 @@
  *      Author: Brij Zaveri
  */
 
-#ifndef INC_CAN_COMM_H_
-#define INC_CAN_COMM_H_
+#ifndef INC_CHARGER_CAN_COMM_H_
+#define INC_CHARGER_CAN_COMM_H_
 
 void transmitDataOverCAN(void);
 
 
-#endif /* INC_CAN_COMM_H_ */
+#endif /* INC_CHARGER_CAN_COMM_H_ */

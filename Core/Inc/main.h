@@ -26,26 +26,45 @@
 extern "C" {
 #endif
 
+// Constants
+#define BMS_RESPONSE_SIZE 70
+#define Cell_String_SIZE 70
+#define Cell_TEMP_SIZE 11
+#define TEMP_OFFSET 2731
+#define NUM_CELL_TEMPS 5
+#define NUM_CELL_STRINGS 23
+#define UART_TIMEOUT 1000
+
+// Define constants for maximum output voltages
+#define MAX_VOLTAGE_23S 8400
+#define MAX_VOLTAGE_19S 6935
+#define MAX_VOLTAGE_16S 5840
+#define MAX_VOLTAGE_15S 5475
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g0xx_hal.h"
 #include "config.h"
-#include "can_comm.h"
-#include "uart_comm.h"
-
-// Array sizes
-#define HOST_COMMAND_1_SIZE 7
-#define HOST_COMMAND_2_SIZE 7
+#include <charger_can_comm.h>
+#include <batt_rs485_comm.h>
+#include <stdbool.h>
 
 // Global variables
-extern uint8_t hostCommand_1[HOST_COMMAND_1_SIZE];
-extern uint8_t hostCommand_2[HOST_COMMAND_2_SIZE];
-extern uint8_t bmsResponse[65];
+extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart2;
+extern uint8_t hostCommand_1[7];
+extern uint8_t hostCommand_2[7];
+extern uint8_t bmsResponse_1[];
+extern uint8_t bmsResponse_2[];
+extern volatile uint8_t hostCommand;
 extern char v_i_Str[50];
-extern volatile uint8_t dataReady;
+extern uint16_t Cell_String[Cell_String_SIZE];
+extern uint16_t voltage,current,SoC,TotalCells;
+extern uint16_t Cell_temp[];
+extern volatile uint8_t dataReady[2];
 extern uint32_t lastDataTime;
 extern const uint32_t TIMEOUT;
 extern uint8_t TxData[8];
-
+extern volatile uint8_t canConnected;
 // Function prototypes
 void SystemClock_Config(void);
 void CheckForTimeout(void);

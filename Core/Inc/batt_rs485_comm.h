@@ -5,10 +5,10 @@
  *      Author: Brij Zaveri
  */
 
-#ifndef INC_UART_COMM_H_
-#define INC_UART_COMM_H_
+#ifndef INC_BATT_RS485_COMM_H_
+#define INC_BATT_RS485_COMM_H_
 
 void transmitBMSCommand(void);
 void transmitDataOverUSART2(void);
 
-#endif /* INC_UART_COMM_H_ */
+#endif /* INC_BATT_RS485_COMM_H_ */

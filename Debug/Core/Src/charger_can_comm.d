@@ -1,4 +1,5 @@
-Core/Src/uart_comm.o: ../Core/Src/uart_comm.c ../Core/Inc/main.h \
+Core/Src/charger_can_comm.o: ../Core/Src/charger_can_comm.c \
+ ../Core/Inc/charger_can_comm.h ../Core/Inc/main.h \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h \
  ../Core/Inc/stm32g0xx_hal_conf.h \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_rcc.h \
@@ -29,8 +30,8 @@ Core/Src/uart_comm.o: ../Core/Src/uart_comm.c ../Core/Inc/main.h \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_pwr_ex.h \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h \
  ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart_ex.h \
- ../Core/Inc/config.h ../Core/Inc/can_comm.h ../Core/Inc/uart_comm.h \
- ../Core/Inc/uart_comm.h
+ ../Core/Inc/config.h ../Core/Inc/batt_rs485_comm.h
+../Core/Inc/charger_can_comm.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h:
 ../Core/Inc/stm32g0xx_hal_conf.h:
@@ -63,6 +64,4 @@ Core/Src/uart_comm.o: ../Core/Src/uart_comm.c ../Core/Inc/main.h \
 ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h:
 ../Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart_ex.h:
 ../Core/Inc/config.h:
-../Core/Inc/can_comm.h:
-../Core/Inc/uart_comm.h:
-../Core/Inc/uart_comm.h:
+../Core/Inc/batt_rs485_comm.h:
