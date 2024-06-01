@@ -1,11 +1,6 @@
-Device A = Charger,
-Device B = Battery
+Device A = Charger, Device B = Battery
 
-Device-A contains RS-485 protocol and Device-B contains CAN protocol, in order to make them communicate without changing their matrix, an RS485<->CAN converter is being intoduced which will capture 
-CAN data from Device-B (battery) and send it to Device-A (Charger) seamlessly.
+Device A uses the RS-485 protocol, while Device B uses the CAN protocol. To enable communication between these devices without altering their configurations, an RS-485 to CAN converter is being introduced. This converter will seamlessly capture CAN data from Device B (Battery) and send it to Device A (Charger). 
 
-PURPOSE OF THIS CONVERTER:-
-OEM sources various components from different vendors like, charger, battery, instrument cluster etc. In order to make them work with each other they have to follow one standard CAN or RS485 matrix (common in EVs). 
-Implementing the common matrix in every nodes is time consuming as vendors does not guarantee or fulfill the implementation time, which cause delay in production of vehicle. 
-So this type of communication protocols converter, in my case RS485<->CAN converter will take care of this problem and boost the production cycle of vehicle. 
-
+Purpose of the Converter:
+OEMs source various components like chargers, batteries, and instrument clusters from different vendors. To ensure these components work together, they must adhere to a common communication standard, typically CAN or RS-485 in EVs. Implementing this standard in every node is time-consuming, and vendors often do not guarantee timely implementation, causing production delays. An RS-485 to CAN converter addresses this issue by bridging the communication gap, thereby accelerating the vehicle production cycle.
