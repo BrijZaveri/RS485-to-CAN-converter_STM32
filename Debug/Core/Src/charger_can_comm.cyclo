@@ -1,6 +1,7 @@
-../Core/Src/charger_can_comm.c:27:6:transmitDataOverCAN	15
-../Core/Src/charger_can_comm.c:196:6:setLEDIndicationBasedOnSOC	1
-../Core/Src/charger_can_comm.c:211:6:hasChargingExceededMaxTime	1
-../Core/Src/charger_can_comm.c:219:6:indicateCANCommunicationError	1
-../Core/Src/charger_can_comm.c:227:6:configureMaxOutputVoltage	6
-../Core/Src/charger_can_comm.c:263:9:getBatteryType	1
+../Core/Src/charger_can_comm.c:21:6:transmitDataOverCAN	17
+../Core/Src/charger_can_comm.c:177:6:chargeVoltageBased	2
+../Core/Src/charger_can_comm.c:235:6:setLEDIndicationBasedOnSOC	1
+../Core/Src/charger_can_comm.c:239:6:hasChargingExceededMaxTime	1
+../Core/Src/charger_can_comm.c:247:6:indicateCANCommunicationError	1
+../Core/Src/charger_can_comm.c:252:6:configureMaxOutputVoltage	7
+../Core/Src/charger_can_comm.c:288:9:getBatteryType	1

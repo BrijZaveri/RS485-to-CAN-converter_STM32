@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * COPYRIGHT (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -26,50 +26,76 @@
 extern "C" {
 #endif
 
+/* Includes ------------------------------------------------------------------*/
+#include "stm32g0xx_hal.h"
+#include "config.h"
+#include <stdio.h>
+#include <charger_can_comm.h>
+#include <batt_rs485_comm.h>
+#include <stdbool.h>
+
 // Constants
+#define BUFFER_SIZE 50
+#define TX_DATA_SIZE 8
+#define COMMAND_SIZE 7
 #define BMS_RESPONSE_SIZE 70
-#define Cell_String_SIZE 70
-#define Cell_TEMP_SIZE 11
+#define CELL_STRING_SIZE 70
+#define CELL_TEMP_SIZE 11
 #define TEMP_OFFSET 2731
 #define NUM_CELL_TEMPS 5
 #define NUM_CELL_STRINGS 23
 #define UART_TIMEOUT 1000
+#define TIMEOUT_MS 3000
+#define MAX_TIMEOUT_COUNT 3
+#define TIMEOUT_INIT 1000  // Timeout for initial response in milliseconds
+#define MAX_TIMEOUT_COUNT 3
+#define DELAY_MS 100
+#define CELL_STRING_SIZE 70
+#define CELL_TEMP_SIZE 11
 
-// Define constants for maximum output voltages
+// Maximum output voltages
 #define MAX_VOLTAGE_23S 8400
 #define MAX_VOLTAGE_19S 6935
 #define MAX_VOLTAGE_16S 5840
 #define MAX_VOLTAGE_15S 5475
 
-/* Includes ------------------------------------------------------------------*/
-#include "stm32g0xx_hal.h"
-#include "config.h"
-#include <charger_can_comm.h>
-#include <batt_rs485_comm.h>
-#include <stdbool.h>
-
 // Global variables
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
-extern uint8_t hostCommand_1[7];
-extern uint8_t hostCommand_2[7];
-extern uint8_t bmsResponse_1[];
-extern uint8_t bmsResponse_2[];
-extern volatile uint8_t hostCommand;
-extern char v_i_Str[50];
-extern uint16_t Cell_String[Cell_String_SIZE];
-extern uint16_t voltage,current,SoC,TotalCells;
-extern uint16_t Cell_temp[];
+
+// Buffers
+extern char v_i_Str[BUFFER_SIZE];
+extern uint8_t TxData[TX_DATA_SIZE];
+extern const uint8_t hostCommand_1[COMMAND_SIZE];
+extern const uint8_t hostCommand_2[COMMAND_SIZE];
+extern uint8_t bmsResponse_1[BMS_RESPONSE_SIZE];
+extern uint8_t bmsResponse_2[BMS_RESPONSE_SIZE];
+extern uint16_t Cell_String[CELL_STRING_SIZE];
+extern uint16_t voltage, current, SoC, TotalCells;
+extern uint16_t Cell_temp[CELL_TEMP_SIZE];
+
+// Flags and counters
 extern volatile uint8_t dataReady[2];
+extern volatile uint8_t hostCommand;
 extern uint32_t lastDataTime;
-extern const uint32_t TIMEOUT;
-extern uint8_t TxData[8];
-extern volatile uint8_t canConnected;
+extern volatile bool canConnected;
+extern volatile uint8_t timeoutCount;
+extern volatile bool timeoutResolved;
+extern volatile bool handleChargeVoltage;
+
+// Charger logic variables
+extern uint8_t broadcastAdd;
+extern uint8_t relayPowerON;
+extern uint8_t max_current;
+extern uint8_t min_current;
+extern uint8_t currentForLessThan3V;
+extern uint8_t derated_current;
+
 // Function prototypes
 void SystemClock_Config(void);
-void CheckForTimeout(void);
+void startReception(void);
+void handleStateMachine(void);
 void Error_Handler(void);
-
 
 /* Private defines -----------------------------------------------------------*/
 #define MCO_Pin GPIO_PIN_0
@@ -84,10 +110,6 @@ void Error_Handler(void);
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
-
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
