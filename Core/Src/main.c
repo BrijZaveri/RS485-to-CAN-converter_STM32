@@ -70,6 +70,7 @@ int main(void) {
     lastDataTime = HAL_GetTick();
 
     while (1) {
+	HAL_Delay(1);
         transmitBMSCommand();
         handleStateMachine();
         HAL_Delay(DELAY_MS);
